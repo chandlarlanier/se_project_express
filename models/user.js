@@ -6,6 +6,8 @@ const User = new mongoose.Schema({
     type: String,
     default: "Elise Bouer",
     required: true,
+    minlength: 2,
+    maxlength: 30
   },
   avatar: {
     type: String,
