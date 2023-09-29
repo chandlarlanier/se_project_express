@@ -1,86 +1,124 @@
 const ClothingItem = require("../models/clothingItem");
+const {
+  BAD_REQUEST_ERROR,
+  SERVER_ERROR,
+  NOT_FOUND_ERROR,
+} = require("../utils/errors");
 
-const createItem = (req, res) => {
-  console.log(req);
-  console.log(req.body);
+const createItem = async (req, res) => {
+  console.log(req.user._id);
 
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl })
-    .then((item) => {
-      console.log(item);
-      res.send({ data: item });
-    })
-    .catch((e) => {
-      res.status(500).send({ message: "Error from createItem", e });
+  try {
+    const item = await ClothingItem.create({
+      name,
+      weather,
+      imageUrl,
+      owner: req.user._id,
     });
+
+    res.status(201).json(item);
+  } catch (message) {
+    if (message.name === "ValidationError") {
+      return res
+        .status(BAD_REQUEST_ERROR)
+        .json({ message: "Validation error" });
+    }
+    res.status(SERVER_ERROR).json({ message: "Error at createItem" });
+  }
+  return createItem;
 };
 
-const getItems = (req, res) => {
-  ClothingItem.find({})
-    .then((items) => {
-      res.status(200).send(items);
-    })
-    .catch((e) => {
-      res.status(500).send({ message: "Error from getItems", e });
-    });
+const getItems = async (req, res) => {
+  try {
+    const items = await ClothingItem.find();
+    res.json(items);
+  } catch (message) {
+    res.status(SERVER_ERROR).json({ message: "Error at getItems" });
+  }
 };
 
-// const updateItem = (req, res) => {
-//   const { itemId } = req.params;
-//   const { imageUrl } = req.body;
-
-//   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
-//     .orFail()
-//     .then((item) => res.status(200).send({ data: item }))
-//     .catch((e) => {
-//       res.status(500).send({ message: "Error from updateItem", e });
-//     });
-// };
-
-const deleteItem = (req, res) => {
+const deleteItem = async (req, res) => {
   const { itemId } = req.params;
-  ClothingItem.findByIdAndDelete(itemId)
-    .orFail()
-    .then((item) => res.status(204).send({}))
-    .catch((e) => {
-      res.status(500).send({ message: "Error from deleteItem", e });
-    });
+  try {
+    const deletedItem = await ClothingItem.findByIdAndRemove(itemId);
+    if (!deletedItem) {
+      return res.status(NOT_FOUND_ERROR).json({ message: "Item not found" });
+    }
+    res.json(deletedItem);
+  } catch (message) {
+    if (message.name === "CastError") {
+      return res.status(BAD_REQUEST_ERROR).json({ message: "Invalid itemId" });
+    }
+    res.status(SERVER_ERROR).json({ message: "Error at deleteItem" });
+  }
+  return deleteItem;
 };
 
 const likeItem = (req, res) => {
-  const { itemId } = req.body;
-  const { _id: userId } = req.user;
+  const { itemId } = req.params;
 
   ClothingItem.findByIdAndUpdate(
     itemId,
-    { $addToSet: { likes: userId } },
+    { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail()
+    .orFail(() => {
+      const error = new Error("Invalid item ID");
+      error.statusCode = NOT_FOUND_ERROR;
+      throw error;
+    })
     .then((item) => {
-      res.send({ data: item });
+      res.json(item);
     })
     .catch((e) => {
-      res.status(500).send({ message: "Error from likeItem", e });
+      if (e.name === "CastError") {
+        return res
+          .status(BAD_REQUEST_ERROR)
+          .json({ message: "Item ID not found" });
+      }
+      console.error(
+        `Error name ${e.name} with message ${e.message} has occurred`,
+      );
+      const errorMessage =
+        e.statusCode === NOT_FOUND_ERROR ? "Item not found" : "Server error";
+      return res
+        .status(e.statusCode || SERVER_ERROR)
+        .json({ message: errorMessage });
     });
 };
 
 const unlikeItem = (req, res) => {
   const { itemId } = req.params;
-  const { _id: userId } = req.user;
 
   ClothingItem.findByIdAndUpdate(
     itemId,
-    { $pull: { likes: userId } },
+    { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail()
+    .orFail(() => {
+      const error = new Error("Invalid itemId");
+      error.statusCode = NOT_FOUND_ERROR;
+      throw error;
+    })
     .then((item) => {
-      res.send({ data: item });
+      res.json(item);
     })
     .catch((e) => {
-      res.status(500).send({ message: "Error from unlikeItem", e });
+      if (e.name === "CastError") {
+        return res
+          .status(BAD_REQUEST_ERROR)
+          .json({ message: "Item not found" });
+      }
+      console.error(
+        `Error name ${e.name} with message ${e.message} has occurred`,
+      );
+      const errorMessage =
+        e.statusCode === NOT_FOUND_ERROR ? "Item not found" : "Server error";
+      return res
+        .status(e.statusCode || SERVER_ERROR)
+        .json({ message: errorMessage });
     });
 };
 
@@ -89,5 +127,5 @@ module.exports = {
   getItems,
   deleteItem,
   likeItem,
-  unlikeItem
+  unlikeItem,
 };
