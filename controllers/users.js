@@ -1,34 +1,43 @@
 const User = require("../models/user");
+const {SERVER_ERROR, BAD_REQUEST_ERROR, NOT_FOUND_ERROR } = require('../utils/errors');
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => {
-      res.status(200).send(users);
-    })
-    .catch((e) => {
-      res.status(500).send({ message: "Error from getAllUsers", e });
-    });
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (message) {
+    res.status(SERVER_ERROR).json({message: "Error at getUsers"});
+  }
 };
 
-const getUser = (req, res) => {
+const getUser = async (req, res) => {
   const { userId } = req.params;
-  User.findById(userId)
-    .orFail()
-    .then((user) => res.status(204).send(user))
-    .catch((e) => {
-      res.status(500).send({ message: "Error from getUser", e });
-    });
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(NOT_FOUND_ERROR).json({message: "Invalid user"});
+    }
+    return res.json(user);
+  } catch (e) {
+    if (e.name === "CastError") {
+      return res.status(BAD_REQUEST_ERROR).json({message: "Invalid user ID"});
+    }
+    return res.status(SERVER_ERROR).json({message: "Error at getUser"});
+  }
 };
 
-const createUser = (req, res) => {
+const createUser = async (req, res) => {
   const { name, avatar } = req.body;
-  User.create({ name, avatar })
-    .then((user) => {
-      res.send({ data: user });
-    })
-    .catch((e) => {
-      res.status(500).send({ message: "Error from createUser", e });
-    });
+  try {
+    const user = await User.create({name, avatar});
+    res.status(201).json(user);
+  } catch (e) {
+    if (e.name === "ValidationError") {
+      res.status(BAD_REQUEST_ERROR).json({message: "Invalid input"});
+    }
+    res.status(SERVER_ERROR).json({message: "Error at createUser"});
+  }
 };
 
 module.exports = {
