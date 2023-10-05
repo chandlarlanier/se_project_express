@@ -14,7 +14,8 @@ mongoose.connect('mongodb://127.0.0.1:27017/wtwr_db', (r) => {
   console.log('DB error', e);
 });
 
-app.use(routes);
+app.use(userRoute);
+app.use(itemRoute);
 
 
 app.listen(PORT, () => {
