@@ -1,59 +1,39 @@
 const ClothingItem = require("../models/clothingItem");
-const {
-  BAD_REQUEST_ERROR,
-  SERVER_ERROR,
-  NOT_FOUND_ERROR,
-} = require("../utils/errors");
+const { handleError } = require("../utils/errors");
 
-const createItem = async (req, res) => {
-  console.log(req.user._id);
-
+const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
 
-  try {
-    const item = await ClothingItem.create({
-      name,
-      weather,
-      imageUrl,
-      owner: req.user._id,
+  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
+    .then((item) => {
+      res.send(item);
+    })
+    .catch((e) => {
+      handleError(req, res, e);
     });
-
-    res.status(201).json(item);
-  } catch (message) {
-    if (message.name === "ValidationError") {
-      return res
-        .status(BAD_REQUEST_ERROR)
-        .json({ message: "Validation error" });
-    }
-    res.status(SERVER_ERROR).json({ message: "Error at createItem" });
-  }
-  return createItem;
 };
 
-const getItems = async (req, res) => {
-  try {
-    const items = await ClothingItem.find();
-    res.json(items);
-  } catch (message) {
-    res.status(SERVER_ERROR).json({ message: "Error at getItems" });
-  }
+const getItems = (req, res) => {
+  ClothingItem.find({})
+    .then((items) => {
+      res.send(items);
+    })
+    .catch((e) => {
+      handleError(e);
+    });
 };
 
-const deleteItem = async (req, res) => {
-  const { itemId } = req.params;
-  try {
-    const deletedItem = await ClothingItem.findByIdAndRemove(itemId);
-    if (!deletedItem) {
-      return res.status(NOT_FOUND_ERROR).json({ message: "Item not found" });
-    }
-    res.json(deletedItem);
-  } catch (message) {
-    if (message.name === "CastError") {
-      return res.status(BAD_REQUEST_ERROR).json({ message: "Invalid itemId" });
-    }
-    res.status(SERVER_ERROR).json({ message: "Error at deleteItem" });
-  }
-  return deleteItem;
+const deleteItem = (req, res) => {
+  const { itemID } = req.params;
+
+  ClothingItem.findByIdAndRemove(itemId)
+    .orFail()
+    .then(() => {
+      res.send({ message: "Item deleted" });
+    })
+    .catch(() => {
+      next(new BAD_REQUEST_ERROR("Invalid data"));
+    });
 };
 
 const likeItem = (req, res) => {
@@ -61,31 +41,17 @@ const likeItem = (req, res) => {
 
   ClothingItem.findByIdAndUpdate(
     itemId,
-    { $addToSet: { likes: req.user._id } },
+    {
+      $addToSet: { likes: req.user._id },
+    },
     { new: true },
   )
-    .orFail(() => {
-      const error = new Error("Invalid item ID");
-      error.statusCode = NOT_FOUND_ERROR;
-      throw error;
-    })
+    .orFail()
     .then((item) => {
-      res.json(item);
+      res.status(200).send(item); // make item an object?
     })
     .catch((e) => {
-      if (e.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR)
-          .json({ message: "Item ID not found" });
-      }
-      console.error(
-        `Error name ${e.name} with message ${e.message} has occurred`,
-      );
-      const errorMessage =
-        e.statusCode === NOT_FOUND_ERROR ? "Item not found" : "Server error";
-      return res
-        .status(e.statusCode || SERVER_ERROR)
-        .json({ message: errorMessage });
+      handleError(req, res, e);
     });
 };
 
@@ -97,28 +63,14 @@ const unlikeItem = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => {
-      const error = new Error("Invalid itemId");
-      error.statusCode = NOT_FOUND_ERROR;
-      throw error;
-    })
+    .orFail()
     .then((item) => {
-      res.json(item);
-    })
-    .catch((e) => {
-      if (e.name === "CastError") {
-        return res
-          .status(BAD_REQUEST_ERROR)
-          .json({ message: "Item not found" });
-      }
-      console.error(
-        `Error name ${e.name} with message ${e.message} has occurred`,
-      );
-      const errorMessage =
-        e.statusCode === NOT_FOUND_ERROR ? "Item not found" : "Server error";
-      return res
-        .status(e.statusCode || SERVER_ERROR)
-        .json({ message: errorMessage });
+      res
+        .status(200)
+        .send(item) // make item an object?
+        .catch((e) => {
+          handleError(req, res, e);
+        });
     });
 };
 
