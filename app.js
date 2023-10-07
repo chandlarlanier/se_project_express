@@ -2,12 +2,12 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const { PORT = 3001 } = process.env;
+const users = require('./routes/users');
+const clothingItems = require('./routes/clothingItems');
 const routes = require('./routes');
 
-app.use(express.json());
-
 mongoose.connect(
-  "mongodb://127.0.0.1:27017/wtwr_db",
+  "mongodb://localhost:27017/wtwr_db",
   (r) => {
     console.log("Connected to DB", r);
   },
@@ -16,7 +16,14 @@ mongoose.connect(
   },
 );
 
+
+
+app.use(express.json());
+
 app.use(routes);
+
+// app.use(users);
+// app.use(clothingItems);
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);

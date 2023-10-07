@@ -4,12 +4,12 @@ const { handleError } = require("../utils/errors");
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
+  ClothingItem.create({ name, weather, imageUrl })
     .then((item) => {
       res.send(item);
     })
-    .catch((e) => {
-      handleError(req, res, e);
+    .catch((error) => {
+      handleError(req, res, error);
     });
 };
 
@@ -18,8 +18,8 @@ const getItems = (req, res) => {
     .then((items) => {
       res.send(items);
     })
-    .catch((e) => {
-      handleError(e);
+    .catch((error) => {
+      handleError(error);
     });
 };
 
@@ -31,8 +31,8 @@ const deleteItem = (req, res) => {
     .then(() => {
       res.send({ message: "Item deleted" });
     })
-    .catch(() => {
-      next(new BAD_REQUEST_ERROR("Invalid data"));
+    .catch((error) => {
+      handleError(req, res, error);
     });
 };
 
@@ -50,8 +50,8 @@ const likeItem = (req, res) => {
     .then((item) => {
       res.status(200).send(item); // make item an object?
     })
-    .catch((e) => {
-      handleError(req, res, e);
+    .catch((error) => {
+      handleError(req, res, error);
     });
 };
 
@@ -68,8 +68,8 @@ const unlikeItem = (req, res) => {
       res
         .status(200)
         .send(item) // make item an object?
-        .catch((e) => {
-          handleError(req, res, e);
+        .catch((error) => {
+          handleError(req, res, error);
         });
     });
 };

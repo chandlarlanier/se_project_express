@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
-const User = new mongoose.Schema({
+const user = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -12,10 +12,12 @@ const User = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (v) => validator.isUrl(v),
+      validator(v) {
+        return validator.isUrl(v)
+      },
       message: "You must enter a valid URL",
     },
   },
 });
 
-module.exports = User;
+module.exports = mongoose.model("users", user);

@@ -8,8 +8,8 @@ const createUser = (req, res) => {
     .then((user) => {
       res.send(user);
     })
-    .catch((e) => {
-      handleError(req, res, e);
+    .catch((error) => {
+      handleError(req, res, error);
     });
 };
 
@@ -18,8 +18,8 @@ const getUsers = (req, res) => {
     .then((users) => {
       res.send(users);
     })
-    .catch((e) => {
-      handleError(req, res, e);
+    .catch((error) => {
+      handleError(req, res, error);
     });
 };
 
@@ -31,8 +31,8 @@ const getUser = (req, res) => {
     .then((user) => {
       res.status(200).send(user);
     })
-    .catch((e) => {
-      handleError(req, res, e);
+    .catch((error) => {
+      handleError(req, res, error);
     });
 };
 
