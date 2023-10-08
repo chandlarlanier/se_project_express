@@ -2,9 +2,9 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const { PORT = 3001 } = process.env;
-const users = require('./routes/users');
-const clothingItems = require('./routes/clothingItems');
-const routes = require('./routes');
+const users = require("./routes/users");
+const clothingItems = require("./routes/clothingItems");
+const routes = require("./routes");
 
 mongoose.connect(
   "mongodb://localhost:27017/wtwr_db",
@@ -16,9 +16,14 @@ mongoose.connect(
   },
 );
 
-
-
 app.use(express.json());
+
+app.use((req, res, next) => {
+  req.user = {
+    _id: "652203690b06a4a0beb3f6b0",
+  };
+  next();
+});
 
 app.use(routes);
 

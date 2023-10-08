@@ -3,6 +3,7 @@ const ERROR_404 = 404;
 const ERROR_500 = 500;
 
 const handleError = (req, res, error) => {
+  console.error(error);
   if (error.name === "ValidationError") {
     res.status(ERROR_400).send({
       message: "Invalid input",

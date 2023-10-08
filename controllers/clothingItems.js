@@ -4,9 +4,9 @@ const { handleError } = require("../utils/errors");
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl })
+  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
-      res.send(item);
+      res.status(200).send(item);
     })
     .catch((error) => {
       handleError(req, res, error);
@@ -16,7 +16,7 @@ const createItem = (req, res) => {
 const getItems = (req, res) => {
   ClothingItem.find({})
     .then((items) => {
-      res.send(items);
+      res.status(200).send(items);
     })
     .catch((error) => {
       handleError(error);
@@ -24,12 +24,12 @@ const getItems = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  const { itemID } = req.params;
+  const { itemId } = req.params;
 
   ClothingItem.findByIdAndRemove(itemId)
     .orFail()
     .then(() => {
-      res.send({ message: "Item deleted" });
+      res.status(200).send({ message: "Item deleted" });
     })
     .catch((error) => {
       handleError(req, res, error);
@@ -48,7 +48,7 @@ const likeItem = (req, res) => {
   )
     .orFail()
     .then((item) => {
-      res.status(200).send(item); // make item an object?
+      res.status(200).send(item);
     })
     .catch((error) => {
       handleError(req, res, error);
@@ -67,7 +67,7 @@ const unlikeItem = (req, res) => {
     .then((item) => {
       res
         .status(200)
-        .send(item) // make item an object?
+        .send(item)
         .catch((error) => {
           handleError(req, res, error);
         });
