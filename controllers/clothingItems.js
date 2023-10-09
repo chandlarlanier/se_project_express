@@ -6,7 +6,7 @@ const createItem = (req, res) => {
 
   ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
-      res.status(200).send(item);
+      res.send(item);
     })
     .catch((error) => {
       handleError(req, res, error);
@@ -16,7 +16,7 @@ const createItem = (req, res) => {
 const getItems = (req, res) => {
   ClothingItem.find({})
     .then((items) => {
-      res.status(200).send(items);
+      res.send(items);
     })
     .catch((error) => {
       handleError(error);
@@ -29,7 +29,7 @@ const deleteItem = (req, res) => {
   ClothingItem.findByIdAndRemove(itemId)
     .orFail()
     .then(() => {
-      res.status(200).send({ message: "Item deleted" });
+      res.send({ message: "Item deleted" });
     })
     .catch((error) => {
       handleError(req, res, error);
@@ -48,7 +48,7 @@ const likeItem = (req, res) => {
   )
     .orFail()
     .then((item) => {
-      res.status(200).send(item);
+      res.send(item);
     })
     .catch((error) => {
       handleError(req, res, error);
@@ -65,12 +65,10 @@ const unlikeItem = (req, res) => {
   )
     .orFail()
     .then((item) => {
-      res
-        .status(200)
-        .send(item)
-        .catch((error) => {
-          handleError(req, res, error);
-        });
+      res.send(item);
+    })
+    .catch((error) => {
+      handleError(req, res, error);
     });
 };
 
