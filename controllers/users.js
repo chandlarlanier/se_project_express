@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const { handleError } = require("../utils/errors");
+const { handleError, ERROR_401 } = require("../utils/errors");
+const { JWT_SECRET } = require("../utils/config");
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
@@ -11,18 +13,20 @@ const createUser = (req, res) => {
       return res.status(409).send({ message: "Email already exists" });
     }
     return bcrypt.hash(password, 10).then((hash) => {
-      User.create({ name, avatar, email, password: hash }).then((user) => {
-        res.send({
-          data: {
-            _id: user._id,
-            name: user.name,
-            avatar: user.avatar,
-            email: user.email,
-          },
+      User.create({ name, avatar, email, password: hash })
+        .then((user) => {
+          res.send({
+            data: {
+              _id: user._id,
+              name: user.name,
+              avatar: user.avatar,
+              email: user.email,
+            },
+          });
+        })
+        .catch((e) => {
+          handleError(req, res, e);
         });
-      }).catch((e) => {
-        handleError(req, res, e);
-      });
     });
   });
 
@@ -55,6 +59,26 @@ const getUser = (req, res) => {
     })
     .catch((error) => {
       handleError(req, res, error);
+    });
+};
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      res.send({
+        token: jwt.sign(
+          {
+            _id: user._id,
+          },
+          JWT_SECRET,
+          { expiresIn: "7d" },
+        ),
+      });
+    })
+    .catch((e) => {
+      return res.status(ERR_401).send({ message: "Login failed" });
     });
 };
 
