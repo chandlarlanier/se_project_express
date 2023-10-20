@@ -84,19 +84,36 @@ const login = (req, res) => {
 
 const getCurrentUser = (req, res) => {
   User.findById(req.user._id)
-  .orFail()
-  .then((user) => {
-    res.send(user);
-  })
-  .catch((e) => {
-    handleError(req, res, e);
-  })
-}
+    .orFail()
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((e) => {
+      handleError(req, res, e);
+    });
+};
+
+const updateUser = (req, res) => {
+  const { name, avatar } = req.body;
+
+  User.findByIdAndUpdate(
+    req.user._id,
+    { $set: { name, avatar } },
+    { new: true, runValidators: true },
+  )
+    .then((updatedUser) => {
+      res.send({ name: updatedUser.name, avatar: updatedUser.avatar });
+    })
+    .catch((e) => {
+      handleError(req, res, e);
+    });
+};
 
 module.exports = {
   getUsers,
   getUser,
   createUser,
   login,
-  getCurrentUser
+  getCurrentUser,
+  updateUser
 };
