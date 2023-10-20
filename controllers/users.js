@@ -82,9 +82,21 @@ const login = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+  .orFail()
+  .then((user) => {
+    res.send(user);
+  })
+  .catch((e) => {
+    handleError(req, res, e);
+  })
+}
+
 module.exports = {
   getUsers,
   getUser,
   createUser,
-  login
+  login,
+  getCurrentUser
 };
