@@ -18,13 +18,6 @@ mongoose.connect(
 
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "652203690b06a4a0beb3f6b0",
-  };
-  next();
-});
-
 app.use(routes);
 
 app.listen(PORT, () => {
