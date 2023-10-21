@@ -65,7 +65,7 @@ const getUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
+  return User.findUserByCredentials({email}).select('+password')
     .then((user) => {
       res.send({
         token: jwt.sign(

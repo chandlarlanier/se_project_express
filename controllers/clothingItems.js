@@ -1,5 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
-const { handleError } = require("../utils/errors");
+const { handleError, ERROR_403 } = require("../utils/errors");
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
@@ -26,10 +26,16 @@ const getItems = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
-  ClothingItem.findByIdAndRemove(itemId)
+  ClothingItem.findById(itemId)
     .orFail()
-    .then(() => {
-      res.send({ message: "Item deleted" });
+    .then((item) => {
+      if (String(item.owner) !== req.user._id) {
+        return res.status(ERROR_403).send({message: "User unauthorized to delete this item"});
+      }
+
+      return item.deleteOne().then(() => {
+        res.send({message: "Item was deleted"});
+      })
     })
     .catch((error) => {
       handleError(req, res, error);
