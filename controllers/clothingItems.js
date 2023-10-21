@@ -30,12 +30,14 @@ const deleteItem = (req, res) => {
     .orFail()
     .then((item) => {
       if (String(item.owner) !== req.user._id) {
-        return res.status(ERROR_403).send({message: "User unauthorized to delete this item"});
+        return res
+          .status(ERROR_403)
+          .send({ message: "User unauthorized to delete item" });
       }
 
       return item.deleteOne().then(() => {
-        res.send({message: "Item was deleted"});
-      })
+        res.send({ message: "Item has been deleted" });
+      });
     })
     .catch((error) => {
       handleError(req, res, error);

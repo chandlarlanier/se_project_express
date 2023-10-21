@@ -14,7 +14,7 @@ const authorize = (req, res, next) => {
 
   try {
     payload = jwt.verify(token, JWT_SECRET);
-  } catch (err) {
+  } catch (error) {
     return res.status(ERROR_401).send({ message: "Authorization error" });
   }
 

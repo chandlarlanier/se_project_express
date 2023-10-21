@@ -26,14 +26,14 @@ const user = new mongoose.Schema({
       validator(v) {
         return validator.isEmail(v);
       },
-      message: "You must enter a valid email"
-    }
+      message: "You must enter a valid email",
+    },
   },
   password: {
     type: String,
     required: true,
-    select: false
-  }
+    select: false,
+  },
 });
 
 module.exports = mongoose.model("users", user);

@@ -11,10 +11,10 @@ const routes = require("./routes");
 mongoose.connect(
   "mongodb://localhost:27017/wtwr_db",
   (r) => {
-    console.log("Connected to DB", r);
+    console.log("Connected to database", r);
   },
   (e) => {
-    console.log("Error connecting to DB", e);
+    console.log("Error connecting to database", e);
   },
 );
 
