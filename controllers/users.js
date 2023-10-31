@@ -7,48 +7,60 @@ const { JWT_SECRET } = require("../utils/config");
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
-  User.findOne({ email }).then((data) => {
-    if (data) {
+  if (!name) {
+    res.status(401).send({ message: "Name is required" });
+  }
+
+  if (!avatar) {
+    res.status(401).send({ message: "Avatar is required" });
+  }
+
+  if (!email) {
+    res.status(401).send({ message: "Email is required" });
+  }
+
+  if (!password) {
+    res.status(ERROR_401).send({ message: "Password is required" });
+  }
+
+  User.findOne({ email }).then((existingUser) => {
+    if (existingUser) {
       return res
         .status(ERROR_409)
         .send({ message: "A user with this email already exists" });
     }
-    return bcrypt.hash(password, 10).then((hash) => {
-      User.create({ name, avatar, email, password: hash })
-        .then((user) => {
-          res.send({
-            data: {
-              _id: user._id,
-              name: user.name,
-              avatar: user.avatar,
-              email: user.email,
-            },
-          });
-        })
-        .catch((error) => {
-          handleError(req, res, error);
+    return bcrypt
+      .hash(password, 10)
+      .then((hash) => {
+        return User.create({ name, avatar, email, password: hash });
+      })
+      .then((newUser) => {
+        res.send({
+          name,
+          avatar,
+          _id: newUser._id,
+          email: newUser.email,
         });
-    });
+      })
+      .catch((error) => {
+        handleError(req, res, error);
+      });
   });
 };
 
 const login = (req, res) => {
   const { email, password } = req.body;
-
+  console.log(email, password);
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      res.send({
-        token: jwt.sign(
-          {
-            _id: user._id,
-          },
-          JWT_SECRET,
-          { expiresIn: "7d" },
-        ),
+      console.log(user);
+      return res.status(200).send({
+        token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" }),
       });
     })
-    .catch(() => {
-      return res.status(ERROR_401).send({ message: "Login failed" });
+    .catch((error) => {
+      console.log(error);
+      return res.status(ERROR_401).send({ message: error });
     });
 };
 
