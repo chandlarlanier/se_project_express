@@ -6,7 +6,7 @@ const authorize = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    return res.status(ERROR_401).send({ message: "Authorization error" });
+    return res.status(ERROR_401).send({ message: "Unauthorized" });
   }
 
   const token = authorization.replace("Bearer ", "");
@@ -15,11 +15,12 @@ const authorize = (req, res, next) => {
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (error) {
-    return res.status(ERROR_401).send({ message: "Authorization error" });
+    return res.status(ERROR_401).send({ message: "Unauthorized" });
   }
 
   req.user = payload;
+
   return next();
 };
 
-module.exports = authorize;
+module.exports = { authorize };
