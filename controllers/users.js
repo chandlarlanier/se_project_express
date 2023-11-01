@@ -7,22 +7,6 @@ const { JWT_SECRET } = require("../utils/config");
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
-  if (!name) {
-    res.status(ERROR_401).send({ message: "Name is required" });
-  }
-
-  if (!avatar) {
-    res.status(ERROR_401).send({ message: "Avatar is required" });
-  }
-
-  if (!email) {
-    res.status(ERROR_401).send({ message: "Email is required" });
-  }
-
-  if (!password) {
-    res.status(ERROR_401).send({ message: "Password is required" });
-  }
-
   User.findOne({ email }).then((existingUser) => {
     if (existingUser) {
       return res
@@ -31,9 +15,7 @@ const createUser = (req, res) => {
     }
     return bcrypt
       .hash(password, 10)
-      .then((hash) => {
-        return User.create({ name, avatar, email, password: hash });
-      })
+      .then((hash) => User.create({ name, avatar, email, password: hash }))
       .then((newUser) => {
         res.send({
           name,
@@ -45,7 +27,10 @@ const createUser = (req, res) => {
       .catch((error) => {
         handleError(req, res, error);
       });
-  });
+  })
+  .catch((error) => {
+    handleError(req, res, error);
+  })
 };
 
 const login = (req, res) => {
