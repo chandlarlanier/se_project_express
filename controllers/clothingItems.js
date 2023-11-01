@@ -1,20 +1,20 @@
 const ClothingItem = require("../models/clothingItem");
-const { handleError, ERROR_403 } = require("../utils/errors");
+const { handleError, ERROR_401, ERROR_403 } = require("../utils/errors");
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
   console.log(req.user._id);
 
   if (!name) {
-    return res.status(401).send({ message: "Name field is required" });
+    return res.status(ERROR_401).send({ message: "Name field is required" });
   }
 
   if (!weather) {
-    return res.status(401).send({ message: "Weather field is required" });
+    return res.status(ERROR_401).send({ message: "Weather field is required" });
   }
 
   if (!imageUrl) {
-    return res.status(401).send({ message: "Image URL is required" });
+    return res.status(ERROR_401).send({ message: "Image URL is required" });
   }
 
   ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })

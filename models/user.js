@@ -45,15 +45,15 @@ user.statics.findUserByCredentials = function findUserByCredentials(
     .select("+password")
     .then((foundUser) => {
       if (!foundUser) {
-        return Promise.reject("User not Found");
+        return Promise.reject("User not found");
       }
 
       return bcrypt.compare(password, foundUser.password).then((match) => {
         if (!match) {
-        return Promise.reject("Incorrect email or password");
+        return Promise.reject("User not found");
         }
         if (match) {
-          console.log("ITS A MATCH");
+          console.log("It's a match");
         }
 
         return foundUser;

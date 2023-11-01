@@ -8,15 +8,15 @@ const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   if (!name) {
-    res.status(401).send({ message: "Name is required" });
+    res.status(ERROR_401).send({ message: "Name is required" });
   }
 
   if (!avatar) {
-    res.status(401).send({ message: "Avatar is required" });
+    res.status(ERROR_401).send({ message: "Avatar is required" });
   }
 
   if (!email) {
-    res.status(401).send({ message: "Email is required" });
+    res.status(ERROR_401).send({ message: "Email is required" });
   }
 
   if (!password) {
