@@ -41,7 +41,7 @@ const login = (req, res) => {
       });
     })
     .catch((error) => {
-      console.log(error);
+      console.error(error);
       return res.status(ERROR_401).send({ message: error });
     });
 };
