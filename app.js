@@ -9,7 +9,7 @@ const { PORT = 3001 } = process.env;
 const routes = require("./routes");
 
 mongoose.connect(
-  "mongodb://localhost:27017/wtwr_db",
+  "mongodb://127.0.0.1:27017/wtwr_db",
   (r) => {
     console.log("Connected to database", r);
   },
