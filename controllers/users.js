@@ -1,36 +1,47 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const { handleError, ERROR_401, ERROR_409 } = require("../utils/errors");
+const {
+  handleError,
+  ERROR_401,
+  ERROR_409,
+  NotFoundError,
+  BadRequestError,
+  UnauthorizedError,
+  ConflicError,
+} = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
-  User.findOne({ email }).then((existingUser) => {
-    if (existingUser) {
-      return res
-        .status(ERROR_409)
-        .send({ message: "A user with this email already exists" });
-    }
-    return bcrypt
-      .hash(password, 10)
-      .then((hash) => User.create({ name, avatar, email, password: hash }))
-      .then((newUser) => {
-        res.send({
-          name,
-          avatar,
-          _id: newUser._id,
-          email: newUser.email,
+  User.findOne({ email })
+    .then((existingUser) => {
+      if (existingUser) {
+        throw new ConflicError("User with this email already exists");
+      }
+      return bcrypt
+        .hash(password, 10)
+        .then((hash) => User.create({ name, avatar, email, password: hash }))
+        .then((newUser) => {
+          res.send({
+            name,
+            avatar,
+            _id: newUser._id,
+            email: newUser.email,
+          });
         });
-      })
-  })
-  .catch((error) => {
-    handleError(req, res, error);
-  })
+    })
+    .catch((error) => {
+      if (error.name == "ValidationError") {
+        next(new BadRequestError("Validation error"));
+      } else {
+        next(error);
+      }
+    });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   console.log(email, password);
   return User.findUserByCredentials(email, password)
@@ -40,24 +51,21 @@ const login = (req, res) => {
         token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" }),
       });
     })
-    .catch((error) => {
-      console.error(error);
-      return res.status(ERROR_401).send({ message: error });
-    });
+    .catch(next);
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail()
+    .orFail(() => {
+      throw new NotFoundError("User not found");
+    })
     .then((user) => {
       res.send(user);
     })
-    .catch((error) => {
-      handleError(req, res, error);
-    });
+    .catch(next);
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -65,11 +73,18 @@ const updateUser = (req, res) => {
     { $set: { name, avatar } },
     { new: true, runValidators: true },
   )
+    .orFail(() => {
+      throw new NotFoundError("User not found");
+    })
     .then((updatedUser) => {
       res.send({ name: updatedUser.name, avatar: updatedUser.avatar });
     })
     .catch((error) => {
-      handleError(req, res, error);
+      if (error.name == "ValidationError") {
+        next(new BadRequestError("Validation error"));
+      } else {
+        next(error);
+      }
     });
 };
 
