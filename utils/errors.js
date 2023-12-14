@@ -20,8 +20,6 @@ const handleError = (req, res, error) => {
   }
 };
 
-// New Start
-
 class BadRequestError extends Error {
   constructor(message) {
     super(message);
@@ -50,7 +48,7 @@ class NotFoundError extends Error {
   }
 }
 
-class ConflicError extends Error {
+class ConflictError extends Error {
   constructor(message) {
     super(message);
     this.statusCode = 409;
@@ -58,14 +56,12 @@ class ConflicError extends Error {
 }
 
 
-// New End
-
 module.exports = {
   BadRequestError,
   UnauthorizedError,
   ForbiddenError,
   NotFoundError,
-  ConflicError,
+  ConflictError,
   ERROR_400,
   ERROR_401,
   ERROR_403,

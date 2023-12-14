@@ -2,13 +2,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const {
-  handleError,
-  ERROR_401,
-  ERROR_409,
   NotFoundError,
   BadRequestError,
-  UnauthorizedError,
-  ConflicError,
+  ConflictError,
 } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
@@ -18,7 +14,7 @@ const createUser = (req, res, next) => {
   User.findOne({ email })
     .then((existingUser) => {
       if (existingUser) {
-        throw new ConflicError("User with this email already exists");
+        throw new ConflictError("User with this email already exists");
       }
       return bcrypt
         .hash(password, 10)

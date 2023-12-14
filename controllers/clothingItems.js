@@ -1,7 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
 const {
-  handleError,
-  ERROR_403,
   BadRequestError,
   ForbiddenError,
   NotFoundError,

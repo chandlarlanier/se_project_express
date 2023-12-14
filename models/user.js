@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
-const UnauthorizedError = require('../utils/errors');
+const { UnauthorizedError } = require("../utils/errors");
 
 const user = new mongoose.Schema({
   name: {
@@ -51,7 +51,7 @@ user.statics.findUserByCredentials = function findUserByCredentials(
 
       return bcrypt.compare(password, foundUser.password).then((match) => {
         if (!match) {
-        return Promise.reject(new UnauthorizedError("User not found"));
+          return Promise.reject(new UnauthorizedError("User not found"));
         }
         if (match) {
           console.log("It's a match");
