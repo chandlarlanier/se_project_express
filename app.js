@@ -3,7 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const errorHandler = require("./middlewares/errorHandler");
 const { errors } = require("celebrate");
-const {requestLogger, errorLogger} = require('./middlewares/logger');
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 const app = express();
 
