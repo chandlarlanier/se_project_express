@@ -10,4 +10,4 @@ The objective behind this project is to create a server for the WTWR application
 - Mongoose: The library that bridges the Node.js application and the MongoDB database.
 
 ## View
-The project is deployed at [wtwr.csproject.org](wtwr.csproject.org).
+The project is deployed at [wtwr.csproject.org](https://wtwr.csproject.org).
