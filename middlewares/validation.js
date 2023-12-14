@@ -22,11 +22,11 @@ const validateClothingItem = celebrate({
       "string.max": "The maximum length of the name field is 30",
       "string.empty": "The name field is required",
     }),
-
     imageUrl: Joi.string().required().custom(validateURL).messages({
       "string.empty": "The imageUrl field is required",
       "string.uri": "the imageUrl field must be a valid url",
     }),
+    weather: Joi.string().valid("hot", "warm", "cold").required(),
   }),
 });
 
@@ -65,7 +65,7 @@ const validateLogIn = celebrate({
 
 const validateId = celebrate({
   [Segments.PARAMS]: Joi.object().keys({
-    id: Joi.string().hex().length(24).messages({
+    itemId: Joi.string().hex().length(24).messages({
       "string.hex": "Id does not use hexadecimal values",
       "string.length": "Id length is not equal to 24",
     }),
