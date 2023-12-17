@@ -1,9 +1,7 @@
 const ClothingItem = require("../models/clothingItem");
-const {
-  BadRequestError,
-  ForbiddenError,
-  NotFoundError,
-} = require("../utils/errors");
+const BadRequestError = require("../utils/errors/BadRequest");
+const ForbiddenError = require("../utils/errors/Forbidden");
+const NotFoundError = require("../utils/errors/NotFound");
 
 const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
@@ -14,7 +12,7 @@ const createItem = (req, res, next) => {
       res.send(item);
     })
     .catch((error) => {
-      if (error.name == "ValidationError") {
+      if (error.name === "ValidationError") {
         next(new BadRequestError("Validation error"));
       } else {
         next(error);

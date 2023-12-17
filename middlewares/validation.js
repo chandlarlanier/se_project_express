@@ -64,7 +64,7 @@ const validateLogIn = celebrate({
 });
 
 const validateId = celebrate({
-  [Segments.PARAMS]: Joi.object().keys({
+  params: Joi.object().keys({
     itemId: Joi.string().hex().length(24).messages({
       "string.hex": "Id does not use hexadecimal values",
       "string.length": "Id length is not equal to 24",

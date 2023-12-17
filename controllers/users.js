@@ -1,11 +1,9 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const {
-  NotFoundError,
-  BadRequestError,
-  ConflictError,
-} = require("../utils/errors");
+const BadRequestError = require("../utils/errors/BadRequest");
+const ConflictError = require("../utils/errors/Conflict");
+const NotFoundError = require("../utils/errors/NotFound");
 const { JWT_SECRET } = require("../utils/config");
 
 const createUser = (req, res, next) => {
@@ -29,7 +27,7 @@ const createUser = (req, res, next) => {
         });
     })
     .catch((error) => {
-      if (error.name == "ValidationError") {
+      if (error.name === "ValidationError") {
         next(new BadRequestError("Validation error"));
       } else {
         next(error);
@@ -76,7 +74,7 @@ const updateUser = (req, res, next) => {
       res.send({ name: updatedUser.name, avatar: updatedUser.avatar });
     })
     .catch((error) => {
-      if (error.name == "ValidationError") {
+      if (error.name === "ValidationError") {
         next(new BadRequestError("Validation error"));
       } else {
         next(error);
