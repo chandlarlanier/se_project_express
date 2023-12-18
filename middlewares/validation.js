@@ -53,7 +53,7 @@ const validateUserInfo = celebrate({
 
 const validateLogIn = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().custome(validateEmail).messages({
+    email: Joi.string().required().custom(validateEmail).messages({
       "string.email": "The email field must be a valid email",
       "string.empty": "The email field is required",
     }),
